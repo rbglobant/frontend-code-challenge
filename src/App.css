@@ -262,9 +262,6 @@ input {
 .suggestions li:last-of-type {
     border-bottom: 0;
 }
-.hl {
-    background-color: #845d0d;
-}
 .max-cp {
     display: block;
     padding-left: 1.5rem;
