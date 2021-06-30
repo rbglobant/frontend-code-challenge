@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
-const URL_PATH = "https://gist.githubusercontent.com/bar0191/fae6084225b608f25e98b733864a102b/raw/dea83ea9cf4a8a6022bfc89a8ae8df5ab05b6dcc/pokemon.json";
+const URL_PATH = "https://raw.githubusercontent.com/joseluisq/pokemons/master/pokemons.json";
 
 export default function App(){
     const [pokemons, setPokemons] = useState([]);
@@ -22,7 +22,7 @@ export default function App(){
         fetch(URL_PATH)
         .then(res => res.json())
         .then(response => {
-            setPokemons(response);
+            setPokemons(response.results);
             setIsLoading(false);
         })
     }
@@ -44,6 +44,16 @@ export default function App(){
         setCurrentSearch(e.target.value);
     }
 
+    const deleteItem = id => {
+        let updatedPokemons = pokemons;
+        let index = updatedPokemons.findIndex((pokemon) => {
+            return pokemon.national_number == id;
+        })
+        updatedPokemons.splice(index, 1);
+        setPokemons(updatedPokemons);
+        filterItems(); 
+    }
+
     const filterItems = () => {
         if (!currentSearch) {
             setResults([]);
@@ -51,11 +61,11 @@ export default function App(){
         }
         const namedSearch = 
             pokemons
-            .filter(pokemon => pokemon.Name.toLowerCase().indexOf(currentSearch.toLowerCase()) > -1)
+            .filter(pokemon => pokemon.name.toLowerCase().indexOf(currentSearch.toLowerCase()) > -1)
         
         const typeSearch = 
             pokemons
-            .filter(pokemon => pokemon.Types.includes(currentSearch))
+            .filter(pokemon => pokemon.type.includes(currentSearch))
         const result = namedSearch.concat(typeSearch);
 
         if (orderByMaxCp) {
@@ -85,15 +95,16 @@ export default function App(){
             <input type="text" className="input"  placeholder="Pokemon or type" onChange={handleKeyPress} />
             {isLoading && <div className="loader"></div>}
             <ul className="suggestions">
-                {results && results.map(pokemon => {
+                {results && results.map((pokemon, index) => {
                     return (
-                        <li key={pokemon.Number}>
-                            <img src={pokemon.img} alt="" />
+                        <li key={index}>
+                            <div data-national_number={pokemon.national_number} onClick={() => {deleteItem(pokemon.national_number)}}>X</div>
+                            <img src={pokemon.sprites.normal} alt="" />
                             <div className="info">
-                                <h1><span className="hl">{getHighlightedText(pokemon.Name)}</span></h1>
-                                {pokemon.Types.map(type => {
+                                <h1><span className="hl">{getHighlightedText(pokemon.name)}</span></h1>
+                                {pokemon.type.map((type, index ) => {
                                     return(
-                                        <span className={`type ${type.toLowerCase()}`}>{type}</span>
+                                        <span key={index} className={`type ${type.toLowerCase()}`}>{type}</span>
                                     )
                                 })}
                             </div>
